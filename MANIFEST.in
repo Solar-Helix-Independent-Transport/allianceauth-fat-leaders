@@ -1,0 +1,6 @@
+include LICENSE
+include README.md
+recursive-include fatleaders *.py
+recursive-include fatleaders *.ttf
+recursive-include fatleaders *.jpg
+
