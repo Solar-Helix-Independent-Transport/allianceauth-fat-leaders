@@ -1,7 +1,7 @@
 import os 
 from setuptools import find_packages, setup
 
-from fatfilters import __version__
+from fatleaders import __version__
 
 
 # read the contents of your README file
