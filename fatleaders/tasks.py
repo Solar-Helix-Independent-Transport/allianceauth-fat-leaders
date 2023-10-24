@@ -14,9 +14,13 @@ from celery import shared_task
 from importlib import resources
 from . import fonts, images
 
+BG_COLOURS = {
+    "Light": (66, 69, 73),
+    "Dark": (33, 36, 40)
+}
 
 @shared_task
-def post_all_corporate_leader_boards(current_month=False, channel_id=0, fun=False):
+def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="OpenSans", bg="Grey"):
     for lb in FatBoardLeadersSetup.objects.all():
         start_time = timezone.now()
         if not current_month:
@@ -45,9 +49,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, fun=Fals
         for t in types_list:
             type_widths[t.id] = {"h": t.header, "w": 0}
 
-        font_name = "OpenSans.ttf"
-        if fun:
-            font_name = "Brookeshappell.ttf"
+        font_name = f"{font}.ttf"
         test_string = "ApygZ12"
         line_padding = 5
         coll_padding = 30
@@ -60,7 +62,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, fun=Fals
         font_colour_title = (255, 255, 255)
         font_colour_rest = (200, 200, 200)
 
-        if fun:
+        if bg not in BG_COLOURS:
             font_colour_title = (0, 15, 85)
             font_colour_rest = (139, 0, 0)
 
@@ -82,10 +84,10 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, fun=Fals
         total_width = (ticker_width*2)+(type_width)
 
         img = Image.new(
-            'RGB', (total_width, total_height), color=(66, 69, 73))
+            'RGB', (total_width, total_height), color=BG_COLOURS.get(bg, (66, 69, 73)))
         d = ImageDraw.Draw(img)
-        if fun:
-            with resources.path(images, "crinkle_paper.jpg") as bg_path:
+        if bg not in BG_COLOURS:
+            with resources.path(images, bg) as bg_path:
                 with open(bg_path, "rb") as f:
                     img_tile = Image.open(f)
                     w, h = img.size
