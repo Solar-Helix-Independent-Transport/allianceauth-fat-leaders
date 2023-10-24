@@ -31,12 +31,12 @@ def post_all_leader_boards(current_month=False, channel_id=0, fun=False):
             character__in=character_list,
             afatlink__afattime__gte=start_time
         ).values(
-            'character__corporation_ticker'
+            'character__character_ownership__user__profile__main_character__corporation_ticker'
         ).annotate(
             count=Count("id")
         ).order_by("-count")
         for _c in corporation_lists:
-            corporations.append((_c['character__corporation_ticker']))
+            corporations.append((_c['character__character_ownership__user__profile__main_character__corporation_ticker']))
         types_list = LeaderBoardTypeThrough.objects.filter(
             LeaderBoard=lb).order_by("rank")
         type_widths = {}
