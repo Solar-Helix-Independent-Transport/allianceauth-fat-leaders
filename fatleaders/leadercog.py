@@ -28,8 +28,8 @@ class FatLeaders(commands.Cog):
             await ctx.defer(ephemeral=True)
             
             if is_admin(ctx.author.id):
-                alt = alternate and ctx.author.id == 318309023478972417
-                post_all_leader_boards.delay(current_month=True, channel_id=ctx.channel.id, fun=alt)
+                
+                post_all_leader_boards.delay(current_month=True, channel_id=ctx.channel.id, fun=alternate)
             await ctx.respond("Requested! Standby!", ephemeral=True)
         except commands.MissingPermissions as e:
             return await ctx.respond(e.missing_permissions[0], ephemeral=True)
