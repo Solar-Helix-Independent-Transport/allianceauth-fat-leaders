@@ -90,18 +90,17 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, fun=Fals
                     img_tile = Image.open(f)
                     w, h = img.size
                     bg_w, bg_h = img_tile.size
-                    img_tile = img_tile.resize((int(bg_w/10), int(bg_h/10)))
+                    img_tile = img_tile.resize((int(bg_w/5), int(bg_h/5)))
                     bg_w, bg_h = img_tile.size
 
+                    _i = 0
+                    _j = 0
                     for i in range(0, w, bg_w):
                         for j in range(0, h, bg_h):
                             # paste the image at location i, j:
-                            fl_img = img_tile
-                            if (i % 2) == 0:
-                                fl_img = fl_img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-                            if (j % 2) == 0:
-                                fl_img = fl_img.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
-                            img.paste(fl_img, (i, j))
+                            img.paste(img_tile, (i, j))
+                            _j += 1
+                        _i += 1
 
         _, _, _w, _ = font.getbbox(lb.name)
         d.text(((total_width-_w)/2, line_y),
