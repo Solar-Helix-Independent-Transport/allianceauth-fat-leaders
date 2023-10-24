@@ -49,7 +49,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, fun=Fals
         if fun:
             font_name = "Brookeshappell.ttf"
         test_string = "ApygZ12"
-        line_padding = lb.time_to_look_back  #TODO change this
+        line_padding = 5
         coll_padding = 30
         font_size = 36
         line_y = 10
