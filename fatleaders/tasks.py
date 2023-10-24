@@ -6,6 +6,7 @@ from django.db.models import Count
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from .models import FatBoardLeadersSetup, LeaderBoardTypeThrough
 from PIL import Image, ImageDraw, ImageFont
+
 import io
 from afat.models import AFat
 
@@ -15,7 +16,7 @@ from . import fonts, images
 
 
 @shared_task
-def post_all_leader_boards(current_month=False, channel_id=0, fun=False):
+def post_all_corporate_leader_boards(current_month=False, channel_id=0, fun=False):
     for lb in FatBoardLeadersSetup.objects.all():
         start_time = timezone.now()
         if not current_month:
@@ -95,7 +96,12 @@ def post_all_leader_boards(current_month=False, channel_id=0, fun=False):
                     for i in range(0, w, bg_w):
                         for j in range(0, h, bg_h):
                             # paste the image at location i, j:
-                            img.paste(img_tile, (i, j))
+                            fl_img = img_tile
+                            if (i % 2) == 0:
+                                fl_img = fl_img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+                            if (j % 2) == 0:
+                                fl_img = fl_img.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+                            img.paste(fl_img, (i, j))
 
         _, _, _w, _ = font.getbbox(lb.name)
         d.text(((total_width-_w)/2, line_y),

@@ -4,7 +4,7 @@ from discord.ext import commands
 # AA Contexts
 from django.conf import settings
 from aadiscordbot.cogs.utils.decorators import is_admin
-from .tasks import post_all_leader_boards
+from .tasks import post_all_corporate_leader_boards
 
 import logging
 
@@ -29,7 +29,7 @@ class FatLeaders(commands.Cog):
             
             if is_admin(ctx.author.id):
                 
-                post_all_leader_boards.delay(current_month=True, channel_id=ctx.channel.id, fun=alternate)
+                post_all_corporate_leader_boards.delay(current_month=True, channel_id=ctx.channel.id, fun=alternate)
             await ctx.respond("Requested! Standby!", ephemeral=True)
         except commands.MissingPermissions as e:
             return await ctx.respond(e.missing_permissions[0], ephemeral=True)
