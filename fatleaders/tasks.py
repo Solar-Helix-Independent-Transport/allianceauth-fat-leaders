@@ -27,7 +27,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         if not current_month:
             start_time = start_time - timedelta(days=timezone.now().day)
 
-        start_time = start_time.replace(day=1, hour=0, minute=0) - timedelta(days=1999)
+        start_time = start_time.replace(day=1, hour=0, minute=0)# - timedelta(days=1999)
 
         character_list = EveCharacter.objects.filter(
             character_ownership__user__profile__main_character__alliance_id__in=lb.alliance.all().values_list("alliance_id"))
