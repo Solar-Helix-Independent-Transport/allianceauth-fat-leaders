@@ -121,7 +121,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         line_x = 10 + ticker_width
 
         d.text((line_x + _total_w + coll_padding, line_y),
-               "Total FLeets",
+               "Total Fleets",
                font=font,
                fill=(int(font_colour_rest[0]/2), int(font_colour_rest[1]/2), int(font_colour_rest[2]/2))
         )
