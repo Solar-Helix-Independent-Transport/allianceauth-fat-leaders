@@ -23,7 +23,8 @@ class FatLeaders(commands.Cog):
     @commands.slash_command(name='gib_corp_leaderboards', guild_ids=[int(settings.DISCORD_GUILD_ID)])
     async def me(self, ctx,
                  bg:discord.Option(str, choices=["Light", "Dark", "crinkle_paper.jpg"]), 
-                 font:discord.Option(str, choices=["OpenSans", "Brookeshappell", "ThedoctorIsIn", "GradeSkooler", "FakeBoyfriend"])):
+                 font:discord.Option(str, choices=["OpenSans", "Brookeshappell", "ThedoctorIsIn", "GradeSkooler", "FakeBoyfriend"]),
+                 last_month:bool = False):
         """
         Spit out the fat Leaderboard
         """
@@ -32,7 +33,7 @@ class FatLeaders(commands.Cog):
             
             if is_admin(ctx.author.id):
                 
-                post_all_corporate_leader_boards.delay(current_month=True, channel_id=ctx.channel.id, bg=bg, font=font)
+                post_all_corporate_leader_boards.delay(current_month=(not last_month), channel_id=ctx.channel.id, bg=bg, font=font)
             await ctx.respond("Requested! Standby!", ephemeral=True)
         except commands.MissingPermissions as e:
             return await ctx.respond(e.missing_permissions[0], ephemeral=True)
