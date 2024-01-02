@@ -3,6 +3,7 @@ from aadiscordbot.tasks import send_channel_message_by_discord_id
 from django.utils import timezone
 from discord import File
 from django.db.models import Count
+from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from .models import FatBoardLeadersSetup, LeaderBoardTypeThrough
 from PIL import Image, ImageDraw, ImageFont
@@ -26,7 +27,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         if not current_month:
             start_time = start_time - timedelta(days=timezone.now().day)
 
-        start_time = start_time.replace(day=1, hour=0, minute=0)
+        start_time = start_time.replace(day=1, hour=0, minute=0) - timedelta(days=999)
 
         character_list = EveCharacter.objects.filter(
             character_ownership__user__profile__main_character__alliance_id__in=lb.alliance.all().values_list("alliance_id"))
@@ -40,6 +41,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         ).annotate(
             count=Count("id")
         ).order_by("-count")
+        
         for _c in corporation_lists:
             corporations.append((_c['character__character_ownership__user__profile__main_character__corporation_ticker']))
         types_list = LeaderBoardTypeThrough.objects.filter(
@@ -73,6 +75,8 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         _measured_test_string = font.getbbox(test_string)
         line_height = _measured_test_string[3] + line_padding
         ticker_width = _measured_test_string[2] + coll_padding
+        _, _, _total_w, _ = font.getbbox("Total")
+        _, _, _ratio_w, _ = font.getbbox("FATs / Main")
 
         type_width = 0
         for id, t in type_widths.items():
@@ -81,7 +85,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
 
         total_height = line_y*2 + \
             (line_height)*(len(corporations)+4)
-        total_width = (ticker_width*2)+(type_width)
+        total_width = ticker_width + _total_w + coll_padding + _ratio_w + coll_padding + type_width
 
         img = Image.new(
             'RGB', (total_width, total_height), color=BG_COLOURS.get(bg, (66, 69, 73)))
@@ -120,42 +124,58 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         line_x += ticker_width
         #d.text((line_x-(coll_padding), line_y), "|", font=font, fill=font_colour)
 
-        _, _, _w, _ = font.getbbox("Total")
-        d.text((line_x+((ticker_width-_w)/2), line_y),
+        d.text((line_x, line_y),
                "Total", font=font, fill=font_colour_title)
-        line_x += ticker_width
-        #d.text((line_x-(coll_padding), line_y), "|", font=font, fill=font_colour)
+        line_x += _total_w + coll_padding
+        
+        d.text((line_x, line_y),
+               "FATs / Main", font=font, fill=font_colour_title)
+        line_x += _ratio_w + coll_padding
 
         for t in LeaderBoardTypeThrough.objects.filter(LeaderBoard=lb).order_by("rank"):
             d.text((line_x, line_y), t.header,
                    font=font, fill=font_colour_title)
             line_x += type_widths[t.id]["w"] + coll_padding
-            #d.text((line_x-(coll_padding), line_y), "|", font=font, fill=font_colour)
 
         line_x = 10
         line_y += line_height
 
         for corp in corporations:
-            #d.text((line_x-(coll_padding), line_y), "|", font=font, fill=font_colour)
 
             d.text((line_x, line_y), corp, font=font, fill=font_colour_rest)
             line_x += ticker_width
-            #d.text((line_x-(coll_padding), line_y), "|", font=font, fill=font_colour)
 
             fats = AFat.objects.filter(
                 character__in=character_list.filter(
                     character_ownership__user__profile__main_character__corporation_ticker=corp),
                 afatlink__afattime__gte=start_time
             ).count()
+            
+            total_mains = CharacterOwnership.objects.filter(
+                character__corporation_ticker=corp
+            ).values(
+                "user__profile__main_character__character_id"
+            ).distinct().count()
+            
             _, _, _w, _ = font.getbbox(str(fats))
 
             d.text(
-                (line_x+((ticker_width-_w)/2), line_y),
+                (line_x+((_total_w-_w)/2), line_y),
                 str(fats),
                 font=font,
                 fill=font_colour_rest)
-            line_x += ticker_width
-            #d.text((line_x-(coll_padding), line_y), "|", font=font, fill=font_colour)
+            line_x += _total_w + coll_padding
+            
+            fat_ratio = fats/total_mains
+            _, _, _w, _ = font.getbbox(f"{fat_ratio:,.2}")
+
+            d.text(
+                (line_x+((_ratio_w-_w)/2), line_y),
+                f"{fat_ratio:,.2}",
+                font=font,
+                fill=font_colour_rest)
+            line_x += _ratio_w + coll_padding
+
 
             for t in LeaderBoardTypeThrough.objects.filter(LeaderBoard=lb).order_by("rank"):
                 fats = AFat.objects.filter(
@@ -168,7 +188,6 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
                 d.text((line_x+((type_widths[t.id]["w"]-_w)/2), line_y),
                        str(fats), font=font, fill=font_colour_rest)
                 line_x += type_widths[t.id]["w"] + coll_padding
-                #d.text((line_x-(coll_padding), line_y), "|", font=font, fill=font_colour)
 
             line_y += line_height
             line_x = 10
