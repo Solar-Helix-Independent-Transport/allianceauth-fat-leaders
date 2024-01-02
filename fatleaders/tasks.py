@@ -162,7 +162,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
             line_x += _total_w + coll_padding
             
             fat_ratio = fats/total_mains
-            _, _, _w, _ = font.getbbox(f"{fat_ratio:,.2}")
+            _, _, _w, _ = font.getbbox(f"{fat_ratio:,.2f}")
 
             d.text(
                 (line_x+((_ratio_w-_w)/2), line_y),
