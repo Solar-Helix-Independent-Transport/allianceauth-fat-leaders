@@ -27,7 +27,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         if not current_month:
             start_time = start_time - timedelta(days=timezone.now().day)
 
-        start_time = start_time.replace(day=1, hour=0, minute=0) - timedelta(days=999)
+        start_time = start_time.replace(day=1, hour=0, minute=0)
 
         character_list = EveCharacter.objects.filter(
             character_ownership__user__profile__main_character__alliance_id__in=lb.alliance.all().values_list("alliance_id"))
@@ -116,7 +116,6 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
                lb.message, font=font, fill=font_colour_title)
         line_y += line_height
 
-
         #d.text((line_x, line_y), "Corp", font=font, fill=font_colour)
         line_x += ticker_width
 
@@ -167,7 +166,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
 
             d.text(
                 (line_x+((_ratio_w-_w)/2), line_y),
-                f"{fat_ratio:,.2}",
+                f"{fat_ratio:,.2f}",
                 font=font,
                 fill=font_colour_rest)
             line_x += _ratio_w + coll_padding
