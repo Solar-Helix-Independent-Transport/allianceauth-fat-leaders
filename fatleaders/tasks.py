@@ -9,7 +9,7 @@ from .models import FatBoardLeadersSetup, LeaderBoardTypeThrough
 from PIL import Image, ImageDraw, ImageFont
 
 import io
-from afat.models import AFat
+from afat.models import AFat, AFatLink
 
 from celery import shared_task
 from importlib import resources
@@ -27,7 +27,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         if not current_month:
             start_time = start_time - timedelta(days=timezone.now().day)
 
-        start_time = start_time.replace(day=1, hour=0, minute=0)
+        start_time = start_time.replace(day=1, hour=0, minute=0) - timedelta(days=1999)
 
         character_list = EveCharacter.objects.filter(
             character_ownership__user__profile__main_character__alliance_id__in=lb.alliance.all().values_list("alliance_id"))
@@ -82,7 +82,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
             type_width += coll_padding + t["w"]
 
         total_height = line_y*2 + \
-            (line_height)*(len(corporations)+4)
+            (line_height)*(len(corporations)+5)
         total_width = ticker_width + _total_w + coll_padding + _ratio_w + coll_padding + type_width
 
         img = Image.new(
@@ -117,6 +117,34 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         line_y += line_height
 
         #d.text((line_x, line_y), "Corp", font=font, fill=font_colour)
+
+        line_x = 10 + ticker_width
+
+        d.text((line_x + _total_w + coll_padding, line_y),
+               "Total FLeets",
+               font=font,
+               fill=(int(font_colour_rest[0]/2), int(font_colour_rest[1]/2), int(font_colour_rest[2]/2))
+        )
+        line_x += _total_w + coll_padding + _ratio_w + coll_padding
+
+        for t in LeaderBoardTypeThrough.objects.filter(LeaderBoard=lb).order_by("rank"):
+            fats = AFatLink.objects.filter(
+                link_type=t.fatLinkType,
+                afattime__gte=start_time
+            ).count()
+            _, _, _w, _ = font.getbbox(str(fats))
+
+            d.text(
+                (line_x+((type_widths[t.id]["w"]-_w)/2), line_y),
+                str(fats),
+                font=font,
+                fill=(int(font_colour_rest[0]/2), int(font_colour_rest[1]/2), int(font_colour_rest[2]/2)))
+
+            line_x += type_widths[t.id]["w"] + coll_padding
+
+        line_x = 10
+        line_y += line_height
+
         line_x += ticker_width
 
         d.text((line_x, line_y),
@@ -131,7 +159,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
             d.text((line_x, line_y), t.header,
                    font=font, fill=font_colour_title)
             line_x += type_widths[t.id]["w"] + coll_padding
-
+            
         line_x = 10
         line_y += line_height
 
