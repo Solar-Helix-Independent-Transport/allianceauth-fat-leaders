@@ -27,7 +27,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         if not current_month:
             start_time = start_time - timedelta(days=timezone.now().day)
 
-        start_time = start_time.replace(day=1, hour=0, minute=0)
+        start_time = start_time.replace(day=1, hour=0, minute=0) - timedelta(days=1999)
 
         character_list = EveCharacter.objects.filter(
             character_ownership__user__profile__main_character__alliance_id__in=lb.alliance.all().values_list("alliance_id"))
@@ -49,7 +49,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         type_widths = {}
 
         for t in types_list:
-            type_widths[t.id] = {"h": t.header, "w": 0}
+            type_widths[t.id] = {"h": [t.header,t.header_line_two], "w": 0}
 
         font_name = f"{font}.ttf"
         test_string = "ApygZ12"
@@ -78,11 +78,13 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
 
         type_width = 0
         for id, t in type_widths.items():
-            t["w"] = font.getbbox(t["h"])[2]
+            l1 = font.getbbox(t["h"][0])[2]
+            l2 = font.getbbox(t["h"][1])[2]
+            t["w"] = max(l1, l2)
             type_width += coll_padding + t["w"]
 
         total_height = line_y*2 + \
-            (line_height)*(len(corporations)+5)
+            (line_height)*(len(corporations)+6)
         total_width = ticker_width + _total_w + coll_padding + _ratio_w + coll_padding + type_width
 
         img = Image.new(
@@ -156,7 +158,21 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         line_x += _ratio_w + coll_padding
 
         for t in LeaderBoardTypeThrough.objects.filter(LeaderBoard=lb).order_by("rank"):
-            d.text((line_x, line_y), t.header,
+            _, _, _w, _ = font.getbbox(t.header)
+            d.text((line_x + (type_widths[t.id]["w"] - _w)/2, line_y), t.header,
+                   font=font, fill=font_colour_title)
+            line_x += type_widths[t.id]["w"] + coll_padding
+            
+        line_x = 10
+        line_y += line_height
+
+        line_x += ticker_width
+        line_x += _total_w + coll_padding
+        line_x += _ratio_w + coll_padding
+
+        for t in LeaderBoardTypeThrough.objects.filter(LeaderBoard=lb).order_by("rank"):
+            _, _, _w, _ = font.getbbox(t.header_line_two)
+            d.text((line_x + (type_widths[t.id]["w"] - _w)/2, line_y), t.header_line_two,
                    font=font, fill=font_colour_title)
             line_x += type_widths[t.id]["w"] + coll_padding
             

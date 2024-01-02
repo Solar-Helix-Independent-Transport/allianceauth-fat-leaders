@@ -22,8 +22,16 @@ class LeaderBoardTypeThrough(models.Model):
     # report fields
     rank = models.IntegerField(
         default=5, help_text="Order the field will be show in. Lowest First.")
+    
     header = models.CharField(
-        max_length=250, help_text="Column header show to the user.")
+        max_length=250,
+        help_text="Column header line one, show to the user.")
+    
+    header_line_two = models.CharField(
+        max_length=250,
+        default= "",
+        blank=True,
+        help_text="Column header line two, show to the user.")
 
     class Meta:
         verbose_name = "AFAT Type Field"
