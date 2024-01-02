@@ -58,8 +58,6 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         font_size = 36
         line_y = 10
         line_x = 10
-        # blue text = 0, 15, 85
-        # red text = 139, 0, 0
 
         font_colour_title = (255, 255, 255)
         font_colour_rest = (200, 200, 200)
@@ -118,11 +116,9 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
                lb.message, font=font, fill=font_colour_title)
         line_y += line_height
 
-        #d.text((line_x-(coll_padding), line_y), "|", font=font, fill=font_colour)
 
         #d.text((line_x, line_y), "Corp", font=font, fill=font_colour)
         line_x += ticker_width
-        #d.text((line_x-(coll_padding), line_y), "|", font=font, fill=font_colour)
 
         d.text((line_x, line_y),
                "Total", font=font, fill=font_colour_title)
@@ -175,7 +171,6 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
                 font=font,
                 fill=font_colour_rest)
             line_x += _ratio_w + coll_padding
-
 
             for t in LeaderBoardTypeThrough.objects.filter(LeaderBoard=lb).order_by("rank"):
                 fats = AFat.objects.filter(
