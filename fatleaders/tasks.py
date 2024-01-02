@@ -27,7 +27,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         if not current_month:
             start_time = start_time - timedelta(days=timezone.now().day)
 
-        start_time = start_time.replace(day=1, hour=0, minute=0)# - timedelta(days=1999)
+        start_time = start_time.replace(day=1, hour=0, minute=0) - timedelta(days=1999)
 
         character_list = EveCharacter.objects.filter(
             character_ownership__user__profile__main_character__alliance_id__in=lb.alliance.all().values_list("alliance_id"))
@@ -190,6 +190,13 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
                 afatlink__afattime__gte=start_time
             ).count()
             
+            total_filtered_fats = AFat.objects.filter(
+                character__in=character_list.filter(
+                    character_ownership__user__profile__main_character__corporation_ticker=corp),
+                afatlink__afattime__gte=start_time,
+                afatlink__link_type__in=lb.types_in_ratio.all()
+            ).count()
+
             total_mains = CharacterOwnership.objects.filter(
                 character__corporation_ticker=corp
             ).values(
@@ -205,12 +212,15 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
                 fill=font_colour_rest)
             line_x += _total_w + coll_padding
             
-            fat_ratio = fats/total_mains
-            _, _, _w, _ = font.getbbox(f"{fat_ratio:,.2f}")
+            fat_ratio = total_filtered_fats/total_mains
+            
+            fat_ratio_str = f"{fat_ratio:,.2f}"
+            
+            _, _, _w, _ = font.getbbox(fat_ratio_str)
 
             d.text(
                 (line_x+((_ratio_w-_w)/2), line_y),
-                f"{fat_ratio:,.2f}",
+                fat_ratio_str,
                 font=font,
                 fill=font_colour_rest)
             line_x += _ratio_w + coll_padding

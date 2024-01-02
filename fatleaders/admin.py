@@ -9,7 +9,7 @@ class LeaderBoardTypeThroughAdmin(admin.StackedInline):
 @admin.register(FatBoardLeadersSetup)
 class FATAdmin(admin.ModelAdmin):
     list_display = ("name", "message")
-    filter_horizontal = ('alliance',)
+    filter_horizontal = ('alliance','types_in_ratio')
 
     select_related=True
 

@@ -9,6 +9,7 @@ class FatBoardLeadersSetup(models.Model):
     message = models.CharField(max_length=500)
     
     time_to_look_back = models.IntegerField(default=30)
+    types_in_ratio = models.ManyToManyField(AFatLinkType, blank=True, related_name="ratio_types")
     types_to_breakout = models.ManyToManyField(AFatLinkType, through="LeaderBoardTypeThrough", blank=True)
 
 
