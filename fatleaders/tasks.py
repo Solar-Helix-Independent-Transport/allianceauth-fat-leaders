@@ -25,7 +25,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
     for lb in FatBoardLeadersSetup.objects.all():
         start_time = timezone.now()
         if not current_month:
-            start_time = start_time - timedelta(days=timezone.now().day)
+            start_time = start_time# - timedelta(days=timezone.now().day)
 
         start_time = start_time.replace(day=1, hour=0, minute=0) - timedelta(days=1999)
 
