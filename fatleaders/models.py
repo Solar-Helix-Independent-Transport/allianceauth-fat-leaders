@@ -1,5 +1,5 @@
 from django.db import models
-from afat.models import AFatLinkType
+from afat.models import FleetType
 from allianceauth.eveonline.models import EveAllianceInfo
 
 class FatBoardLeadersSetup(models.Model):
@@ -9,8 +9,8 @@ class FatBoardLeadersSetup(models.Model):
     message = models.CharField(max_length=500)
     
     time_to_look_back = models.IntegerField(default=30)
-    types_in_ratio = models.ManyToManyField(AFatLinkType, blank=True, related_name="ratio_types")
-    types_to_breakout = models.ManyToManyField(AFatLinkType, through="LeaderBoardTypeThrough", blank=True)
+    types_in_ratio = models.ManyToManyField(FleetType, blank=True, related_name="ratio_types")
+    types_to_breakout = models.ManyToManyField(FleetType, through="LeaderBoardTypeThrough", blank=True)
 
 
 class LeaderBoardTypeThrough(models.Model):
@@ -18,7 +18,7 @@ class LeaderBoardTypeThrough(models.Model):
     LeaderBoard = models.ForeignKey(FatBoardLeadersSetup, on_delete=models.CASCADE)
     
     fatLinkType = models.ForeignKey(
-        AFatLinkType, on_delete=models.CASCADE)
+        FleetType, on_delete=models.CASCADE)
 
     # report fields
     rank = models.IntegerField(

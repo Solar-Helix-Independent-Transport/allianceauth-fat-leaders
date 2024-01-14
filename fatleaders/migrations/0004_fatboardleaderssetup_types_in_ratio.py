@@ -9,6 +9,9 @@ class Migration(migrations.Migration):
         ('afat', '0021_alter_afatlink_fleet'),
         ('fatleaders', '0003_leaderboardtypethrough_header_line_two_and_more'),
     ]
+    run_before = [
+        ('afat', '0023_the_big_rename'),
+    ] 
 
     operations = [
         migrations.AddField(

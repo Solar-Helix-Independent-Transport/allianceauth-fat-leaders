@@ -9,7 +9,7 @@ from .models import FatBoardLeadersSetup, LeaderBoardTypeThrough
 from PIL import Image, ImageDraw, ImageFont
 
 import io
-from afat.models import AFat, AFatLink
+from afat.models import Fat, FatLink
 
 from celery import shared_task
 from importlib import resources
@@ -27,15 +27,15 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         if not current_month:
             start_time = start_time - timedelta(days=timezone.now().day)
 
-        start_time = start_time.replace(day=1, hour=0, minute=0)# - timedelta(days=1999)
+        start_time = start_time.replace(day=1, hour=0, minute=0) - timedelta(days=1999)
 
         character_list = EveCharacter.objects.filter(
             character_ownership__user__profile__main_character__alliance_id__in=lb.alliance.all().values_list("alliance_id"))
 
         corporations = []
-        corporation_lists = AFat.objects.filter(
+        corporation_lists = Fat.objects.filter(
             character__in=character_list,
-            afatlink__afattime__gte=start_time
+            fatlink__created__gte=start_time
         ).values(
             'character__character_ownership__user__profile__main_character__corporation_ticker'
         ).annotate(
@@ -130,9 +130,9 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
         line_x += _total_w + coll_padding + _ratio_w + coll_padding
 
         for t in LeaderBoardTypeThrough.objects.filter(LeaderBoard=lb).order_by("rank"):
-            fats = AFatLink.objects.filter(
+            fats = FatLink.objects.filter(
                 link_type=t.fatLinkType,
-                afattime__gte=start_time
+                created__gte=start_time
             ).count()
             _, _, _w, _ = font.getbbox(str(fats))
 
@@ -184,17 +184,17 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
             d.text((line_x, line_y), corp, font=font, fill=font_colour_rest)
             line_x += ticker_width
 
-            fats = AFat.objects.filter(
+            fats = Fat.objects.filter(
                 character__in=character_list.filter(
                     character_ownership__user__profile__main_character__corporation_ticker=corp),
-                afatlink__afattime__gte=start_time
+                fatlink__created__gte=start_time
             ).count()
             
-            total_filtered_fats = AFat.objects.filter(
+            total_filtered_fats = Fat.objects.filter(
                 character__in=character_list.filter(
                     character_ownership__user__profile__main_character__corporation_ticker=corp),
-                afatlink__afattime__gte=start_time,
-                afatlink__link_type__in=lb.types_in_ratio.all()
+                fatlink__created__gte=start_time
+                fatlink__link_type__in=lb.types_in_ratio.all()
             ).count()
 
             total_mains = CharacterOwnership.objects.filter(
@@ -226,11 +226,11 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
             line_x += _ratio_w + coll_padding
 
             for t in LeaderBoardTypeThrough.objects.filter(LeaderBoard=lb).order_by("rank"):
-                fats = AFat.objects.filter(
+                fats = Fat.objects.filter(
                     character__in=character_list.filter(
                         character_ownership__user__profile__main_character__corporation_ticker=corp),
-                    afatlink__afattime__gte=start_time,
-                    afatlink__link_type=t.fatLinkType
+                    fatlink__created__gte=start_time,
+                    fatlink__link_type=t.fatLinkType
                 ).count()
                 _, _, _w, _ = font.getbbox(str(fats))
                 d.text((line_x+((type_widths[t.id]["w"]-_w)/2), line_y),
