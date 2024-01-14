@@ -193,7 +193,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
             total_filtered_fats = Fat.objects.filter(
                 character__in=character_list.filter(
                     character_ownership__user__profile__main_character__corporation_ticker=corp),
-                fatlink__created__gte=start_time
+                fatlink__created__gte=start_time,
                 fatlink__link_type__in=lb.types_in_ratio.all()
             ).count()
 

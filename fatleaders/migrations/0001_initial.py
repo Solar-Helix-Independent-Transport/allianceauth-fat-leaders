@@ -12,11 +12,11 @@ class Migration(migrations.Migration):
         ('afat', '0021_alter_afatlink_fleet'),
         ('eveonline', '0017_alliance_and_corp_names_are_not_unique'),
     ]
-    
+
     run_before = [
         ('afat', '0023_the_big_rename'),
-    ] 
-
+    ]
+    
     operations = [
         migrations.CreateModel(
             name='FatBoardLeadersSetup',
