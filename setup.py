@@ -12,11 +12,16 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
+install_requires = [
+    'pillow',
+]
+
 setup(
     name='allianceauth-fat-leaders',
     version=__version__,
     packages=find_packages(),
     include_package_data=True,
+    install_requires=install_requires,
     license='MIT',
     description='aFAT Mod for shenanigans',
     long_description=long_description,
