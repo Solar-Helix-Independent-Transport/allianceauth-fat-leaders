@@ -131,7 +131,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
 
         for t in LeaderBoardTypeThrough.objects.filter(LeaderBoard=lb).order_by("rank"):
             fats = FatLink.objects.filter(
-                link_type=t.fatLinkType,
+                fleet_type=t.fatLinkType.name,
                 created__gte=start_time
             ).count()
             _, _, _w, _ = font.getbbox(str(fats))
@@ -194,7 +194,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
                 character__in=character_list.filter(
                     character_ownership__user__profile__main_character__corporation_ticker=corp),
                 fatlink__created__gte=start_time,
-                fatlink__link_type__in=lb.types_in_ratio.all()
+                fatlink__fleet_type__in=lb.types_in_ratio.all().values_list("name")
             ).count()
 
             total_mains = CharacterOwnership.objects.filter(
@@ -230,7 +230,7 @@ def post_all_corporate_leader_boards(current_month=False, channel_id=0, font="Op
                     character__in=character_list.filter(
                         character_ownership__user__profile__main_character__corporation_ticker=corp),
                     fatlink__created__gte=start_time,
-                    fatlink__link_type=t.fatLinkType
+                    fatlink__fleet_type=t.fatLinkType.name
                 ).count()
                 _, _, _w, _ = font.getbbox(str(fats))
                 d.text((line_x+((type_widths[t.id]["w"]-_w)/2), line_y),
