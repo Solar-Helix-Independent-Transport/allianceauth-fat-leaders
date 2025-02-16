@@ -12,8 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('afat', '0021_alter_afatlink_fleet'),
-        ('eveonline', '0017_alliance_and_corp_names_are_not_unique'),
-        ('afat', '0023_the_big_rename'),
+        ('eveonline', '0017_alliance_and_corp_names_are_not_unique')
     ]
 
     operations = [
